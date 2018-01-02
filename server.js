@@ -4,14 +4,19 @@ var querystring = require('querystring');
 
 var chatMessages = [];
 
-var server = http.createServer().listen(3000);
+var server = http.createServer(function(req,res){
+    // Set CORS headers
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,PATCH,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+
+}).listen(3000);
 
 server.on('request', function (req, res) {
-    console.log("req",req.url, req.method)
-    //if (req.method == 'POST') {
+
         var urlSplit = req.url.split("?");
         var route = urlSplit[0];
-        console.log("url", urlSplit)
         var body = '';
 
         if(route == '/send'){
@@ -21,18 +26,14 @@ server.on('request', function (req, res) {
                 var parts = queryParts[i].split('=');
                 params[parts[0]] = parts[1];
             }
-            console.log("reqq",urlSplit, params)
             chatMessages.push(params);
         }
 
-    //}
-
-    //if ( req.method == 'GET') {
         if(req.url == '/read'){
-            console.log("chatmess", chatMessages)
+    
             res.end(JSON.stringify(chatMessages))
         }
-    //}
+
 
     req.on('data', function (data) {
         console.log("onn", data, "onnnn", body)
@@ -41,8 +42,7 @@ server.on('request', function (req, res) {
 
     req.on('end', function () {
         var post = querystring.parse(body);
-        console.log("aa",post);
-        res.writeHead(200, {'Content-Type': 'text/plain'});
+        console.log(post);
         res.end('Hello World\n');
 
     });
